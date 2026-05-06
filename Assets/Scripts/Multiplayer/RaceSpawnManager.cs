@@ -27,6 +27,11 @@ public class RaceSpawnManager : NetworkBehaviour
     {
         if (!IsServer) return;
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            OnClientConnected(client.ClientId);
+        }
     }
 
     public override void OnNetworkDespawn()

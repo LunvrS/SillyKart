@@ -295,6 +295,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 926fde3d24df3b94cba5b56675ee6e81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LobbyManager
+  playerPrefab: {fileID: 0}
   gameSceneName: GameScene
 --- !u!4 &761305476
 Transform:
@@ -673,7 +674,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1470299331}
-    PlayerPrefab: {fileID: 8471791083818333328, guid: adc13a84f992448448f44de7dbdfa171, type: 3}
+    PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: cf16f83c7e4c63445aca3e81ea09cbea, type: 2}

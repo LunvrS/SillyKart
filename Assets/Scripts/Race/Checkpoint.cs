@@ -2,6 +2,7 @@
 // Attach to a GameObject with a Trigger Collider.
 // Tag the collider with "Player" or use layer filtering.
 
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
@@ -23,12 +24,28 @@ public class Checkpoint : MonoBehaviour
     {
         // Accept any collider whose root has a RaceTracker-capable component.
         // Works for both local and networked players.
-        var tracker = other.GetComponentInParent<RaceTracker>();
+        //Debug.Log($"Hit collider {other.gameObject}");
+
+        var netObj = other.GetComponent<NetworkObject>();
+        if (netObj == null)
+        {
+            Debug.Log("No NetworkObject found");
+            return;
+        }
+
+        var tracker = netObj.GetComponent<RaceTracker>();
+        Debug.Log($"Tracker: {tracker}");
         if (tracker == null) return;
 
-        if (IsFinishLine)
+        if (IsFinishLine) 
+        {
+            Debug.Log($"Is finish {IsFinishLine}");
             tracker.OnFinishLineCrossed();
+        }
         else
+        {
+            Debug.Log($"Hit point : {CheckpointIndex}");
             tracker.OnCheckpointHit(CheckpointIndex);
+        }
     }
 }

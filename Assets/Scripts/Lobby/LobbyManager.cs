@@ -13,6 +13,7 @@ public class LobbyManager : MonoBehaviour
 {
     public static LobbyManager Instance { get; private set; }
 
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private string gameSceneName = "GameScene";
 
     private void Awake()
