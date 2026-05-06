@@ -78960,7 +78960,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 333079480
+  GlobalObjectIdHash: 351516877
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -79084,7 +79084,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaceTracker
   ShowTopMostFoldoutHeaderGroup: 1
   TotalCheckpoints: 3
-  TotalLaps: 1
+  TotalLaps: 3
+  _currentLap: 1
 --- !u!114 &8394175462728092519
 MonoBehaviour:
   m_ObjectHideFlags: 0

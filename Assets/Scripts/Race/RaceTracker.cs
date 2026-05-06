@@ -21,7 +21,7 @@ public class RaceTracker : NetworkBehaviour
 
     // ── Runtime state ──────────────────────────────────────────────────────
     private int _nextExpectedCheckpoint = 0; // 0-based index of the NEXT gate to hit
-    private int _currentLap = 1;
+    [SerializeField] private int _currentLap = 1;
     private bool _raceFinished = false;
 
     // ── Public read-only accessors used by HUD ─────────────────────────────
