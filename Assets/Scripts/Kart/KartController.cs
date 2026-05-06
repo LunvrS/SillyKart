@@ -1,10 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.InputSystem; // Added for New Input System
 
-public class KartController : MonoBehaviour
+public class KartController : Unity.Netcode.NetworkBehaviour
 {
     public Transform kartModel;
     public Transform kartNormal;
@@ -23,6 +23,10 @@ public class KartController : MonoBehaviour
 
     [Header("Bools")]
     public bool drifting;
+    [Header("Multiplayer")]
+    [Tooltip("Auto-assigned at runtime - leave empty in Inspector.")]
+    public NetworkedKartController networkedKart;
+
 
     [Header("Parameters")]
     public float acceleration = 30f;
@@ -42,6 +46,8 @@ public class KartController : MonoBehaviour
 
     void Start()
     {
+        sphere.transform.parent = null;
+
         for (int i = 0; i < wheelParticles.GetChild(0).childCount; i++)
         {
             primaryParticles.Add(wheelParticles.GetChild(0).GetChild(i).GetComponent<ParticleSystem>());
@@ -60,19 +66,25 @@ public class KartController : MonoBehaviour
 
     void Update()
     {
+        if (sphere == null) return;
+
+        // Only the owning client processes input.
+        // IsOwner returns true in singleplayer (no NetworkObject) so offline play is unaffected.
+        if (!IsOwner) return;
+
+        // Block all input until the 3-2-1-GO countdown has finished.
+        if (!RaceCountdown.RaceStarted) return;
+
         // 1. Get Inputs from New Input System
         var keyboard = Keyboard.current;
-        if (keyboard == null) return; // Safety check
+        if (keyboard == null) return;
 
-        // Accelerate (Mapping Fire1 to Space/W/UpArrow)
         bool accelerateInput = keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed || keyboard.spaceKey.isPressed;
 
-        // Horizontal Axis (A/D or Arrows)
         float horizontalInput = 0;
         if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) horizontalInput -= 1f;
         if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) horizontalInput += 1f;
 
-        // Drift/Jump (Mapping Jump to LeftShift)
         bool driftPressedThisFrame = keyboard.leftShiftKey.wasPressedThisFrame;
         bool driftReleasedThisFrame = keyboard.leftShiftKey.wasReleasedThisFrame;
 
@@ -96,14 +108,12 @@ public class KartController : MonoBehaviour
         {
             drifting = true;
             driftDirection = horizontalInput > 0 ? 1 : -1;
-
             foreach (ParticleSystem p in primaryParticles)
             {
                 var pmain = p.main;
                 pmain.startColor = Color.clear;
                 p.Play();
             }
-
             kartModel.parent.DOComplete();
             kartModel.parent.DOPunchPosition(transform.up * .2f, .3f, 5, 1);
         }
@@ -114,7 +124,6 @@ public class KartController : MonoBehaviour
             float powerControl = (driftDirection == 1) ? ExtensionMethods.Remap(horizontalInput, -1, 1, .2f, 1) : ExtensionMethods.Remap(horizontalInput, -1, 1, 1, .2f);
             Steer(driftDirection, control);
             driftPower += powerControl * 100f * Time.deltaTime;
-
             ColorDrift();
         }
 
@@ -127,7 +136,6 @@ public class KartController : MonoBehaviour
         currentRotate = Mathf.Lerp(currentRotate, rotate, Time.deltaTime * 4f); rotate = 0f;
 
         // 6. Animations
-        // a) Kart
         if (!drifting)
         {
             kartModel.localEulerAngles = Vector3.Lerp(kartModel.localEulerAngles, new Vector3(0, 90 + (horizontalInput * 15), kartModel.localEulerAngles.z), .2f);
@@ -138,17 +146,23 @@ public class KartController : MonoBehaviour
             kartModel.parent.localRotation = Quaternion.Euler(0, Mathf.LerpAngle(kartModel.parent.localEulerAngles.y, (control * 15) * driftDirection, .2f), 0);
         }
 
-        // b) Wheels
         frontWheels.localEulerAngles = new Vector3(0, (horizontalInput * 15), frontWheels.localEulerAngles.z);
         frontWheels.localEulerAngles += new Vector3(0, 0, sphere.linearVelocity.magnitude / 2);
         backWheels.localEulerAngles += new Vector3(0, 0, sphere.linearVelocity.magnitude / 2);
-
-        // c) Steering Wheel
         steeringWheel.localEulerAngles = new Vector3(-25, 90, (horizontalInput * 45));
+
+        // Push drift state to NetworkedKartController so other clients see your sparks.
+        if (networkedKart != null)
+        {
+            networkedKart.DriftPower = driftPower / 150f; // normalised 0-1
+            networkedKart.DriftMode  = driftMode;
+        }
     }
 
     private void FixedUpdate()
     {
+        if (sphere == null) return;
+
         if (!drifting)
             sphere.AddForce(-kartModel.transform.right * currentSpeed, ForceMode.Acceleration);
         else
@@ -162,6 +176,14 @@ public class KartController : MonoBehaviour
 
         kartNormal.up = Vector3.Lerp(kartNormal.up, hitNear.normal, Time.deltaTime * 8.0f);
         kartNormal.Rotate(0, transform.eulerAngles.y, 0);
+    }
+
+    private void OnDestroy()
+    {
+        if (sphere != null)
+        {
+            Destroy(sphere.gameObject);
+        }
     }
 
     public void Boost()
