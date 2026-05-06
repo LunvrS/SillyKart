@@ -22,18 +22,7 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // Accept any collider whose root has a RaceTracker-capable component.
-        // Works for both local and networked players.
-        //Debug.Log($"Hit collider {other.gameObject}");
-
-        var netObj = other.GetComponent<NetworkObject>();
-        if (netObj == null)
-        {
-            Debug.Log("No NetworkObject found");
-            return;
-        }
-
-        var tracker = netObj.GetComponent<RaceTracker>();
+        var tracker = FindRaceTracker(other);
         Debug.Log($"Tracker: {tracker}");
         if (tracker == null) return;
 
@@ -47,5 +36,40 @@ public class Checkpoint : MonoBehaviour
             Debug.Log($"Hit point : {CheckpointIndex}");
             tracker.OnCheckpointHit(CheckpointIndex);
         }
+    }
+
+    private static RaceTracker FindRaceTracker(Collider other)
+    {
+        var checkpointTarget = other.GetComponent<KartCheckpointTarget>();
+        if (checkpointTarget != null && checkpointTarget.Tracker != null)
+            return checkpointTarget.Tracker;
+
+        if (other.attachedRigidbody != null)
+        {
+            checkpointTarget = other.attachedRigidbody.GetComponent<KartCheckpointTarget>();
+            if (checkpointTarget != null && checkpointTarget.Tracker != null)
+                return checkpointTarget.Tracker;
+        }
+
+        var tracker = other.GetComponentInParent<RaceTracker>();
+        if (tracker != null)
+            return tracker;
+
+        var netObj = other.GetComponentInParent<NetworkObject>();
+        if (netObj != null)
+            return netObj.GetComponent<RaceTracker>();
+
+        Debug.Log($"[Checkpoint] No RaceTracker found for collider '{other.name}'.");
+        return null;
+    }
+}
+
+public class KartCheckpointTarget : MonoBehaviour
+{
+    public RaceTracker Tracker { get; private set; }
+
+    public void Initialize(RaceTracker tracker)
+    {
+        Tracker = tracker;
     }
 }

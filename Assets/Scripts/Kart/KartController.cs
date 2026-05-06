@@ -46,6 +46,16 @@ public class KartController : Unity.Netcode.NetworkBehaviour
 
     void Start()
     {
+        var tracker = GetComponent<RaceTracker>();
+        if (tracker != null && sphere != null)
+        {
+            var checkpointTarget = sphere.GetComponent<KartCheckpointTarget>();
+            if (checkpointTarget == null)
+                checkpointTarget = sphere.gameObject.AddComponent<KartCheckpointTarget>();
+
+            checkpointTarget.Initialize(tracker);
+        }
+
         sphere.transform.parent = null;
 
         for (int i = 0; i < wheelParticles.GetChild(0).childCount; i++)
@@ -178,8 +188,10 @@ public class KartController : Unity.Netcode.NetworkBehaviour
         kartNormal.Rotate(0, transform.eulerAngles.y, 0);
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
+        base.OnDestroy();
+
         if (sphere != null)
         {
             Destroy(sphere.gameObject);

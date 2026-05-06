@@ -1076,7 +1076,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62065addac4f34e4995b90927de41415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
-  CheckpointIndex: 1
+  CheckpointIndex: 0
   IsFinishLine: 0
 --- !u!65 &250789670
 BoxCollider:
@@ -1116,7 +1116,7 @@ Transform:
   m_GameObject: {fileID: 250789668}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.44, y: 0, z: 12.01}
+  m_LocalPosition: {x: 7.44, y: 0, z: 15}
   m_LocalScale: {x: 10.313316, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1318,7 +1318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62065addac4f34e4995b90927de41415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
-  CheckpointIndex: 2
+  CheckpointIndex: 1
   IsFinishLine: 0
 --- !u!65 &324162721
 BoxCollider:
@@ -5343,7 +5343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62065addac4f34e4995b90927de41415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
-  CheckpointIndex: 3
+  CheckpointIndex: 2
   IsFinishLine: 0
 --- !u!65 &1750117191
 BoxCollider:
@@ -5804,7 +5804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62065addac4f34e4995b90927de41415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
-  CheckpointIndex: 4
+  CheckpointIndex: 0
   IsFinishLine: 1
 --- !u!65 &1938250310
 BoxCollider:
