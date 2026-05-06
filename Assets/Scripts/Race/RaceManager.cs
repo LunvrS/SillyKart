@@ -25,6 +25,8 @@ public struct FinishEntry
 public class RaceManager : NetworkBehaviour
 {
     public static RaceManager Instance { get; private set; }
+    public static bool RaceOver { get; private set; }
+    public static float RaceEndTime { get; private set; }
 
     // ── Inspector ──────────────────────────────────────────────────────────
     [Header("Race Config")]
@@ -45,10 +47,15 @@ public class RaceManager : NetworkBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        RaceOver = false;
+        RaceEndTime = 0f;
     }
 
     public override void OnNetworkSpawn()
     {
+        RaceOver = false;
+        RaceEndTime = 0f;
+
         if (EndScreenPanel != null)
             EndScreenPanel.SetActive(false);
 
@@ -81,11 +88,20 @@ public class RaceManager : NetworkBehaviour
 
         Debug.Log($"[RaceManager] Client {clientId} finished P{_finishers.Count} in {time:F2}s");
 
-        if (_finishers.Count >= ExpectedPlayerCount)
+        if (_finishers.Count >= GetRequiredFinisherCount())
         {
             _raceOver = true;
-            BroadcastResultsClientRpc(BuildResultsString());
+            float raceEndTime = RaceCountdown.RaceElapsed;
+            BroadcastResultsClientRpc(BuildResultsString(), raceEndTime);
         }
+    }
+
+    private int GetRequiredFinisherCount()
+    {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.ConnectedClientsIds.Count > 0)
+            return NetworkManager.Singleton.ConnectedClientsIds.Count;
+
+        return Mathf.Max(1, ExpectedPlayerCount);
     }
 
     // ── Server helper ──────────────────────────────────────────────────────
@@ -106,8 +122,10 @@ public class RaceManager : NetworkBehaviour
     // ── ClientRpc: runs on every connected client ──────────────────────────
 
     [ClientRpc]
-    private void BroadcastResultsClientRpc(string resultsText)
+    private void BroadcastResultsClientRpc(string resultsText, float raceEndTime)
     {
+        RaceOver = true;
+        RaceEndTime = raceEndTime;
         ShowEndScreen(resultsText);
     }
 

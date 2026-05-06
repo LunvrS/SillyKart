@@ -14,7 +14,7 @@ public class RaceTracker : NetworkBehaviour
     // ── Config ─────────────────────────────────────────────────────────────
     [Header("Race Config")]
     [Tooltip("Total number of checkpoints on the track (excluding finish line).")]
-    public int TotalCheckpoints = 6;
+    public int TotalCheckpoints = 3;
 
     [Tooltip("Number of laps to complete.")]
     public int TotalLaps = 3;

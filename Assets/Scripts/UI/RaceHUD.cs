@@ -42,11 +42,15 @@ public class RaceHUD : MonoBehaviour
         // Timer (only ticks once race is active)
         if (TimerLabel != null && RaceCountdown.RaceStarted)
         {
-            float t = RaceCountdown.RaceElapsed;
-            int minutes = (int)(t / 60f);
-            float seconds = t % 60f;
-            TimerLabel.text = $"{minutes}:{seconds:00.000}";
+            TimerLabel.text = FormatTime(RaceManager.RaceOver ? RaceManager.RaceEndTime : RaceCountdown.RaceElapsed);
         }
+    }
+
+    private static string FormatTime(float time)
+    {
+        int minutes = (int)(time / 60f);
+        float seconds = time % 60f;
+        return $"{minutes}:{seconds:00.000}";
     }
 
     private void FindLocalTracker()
